@@ -11,19 +11,11 @@ export class Battle extends Room<BattleState> {
     this.setState(new BattleState());
 
     this.onMessage("attack", (client, message) => {
-      //
-      // handle "type" message
-      //
       console.log("ATTACK", client.sessionId);
-      if (!this.state.isEnded) {
-        const winnerId = client.sessionId;
-        this.state.isEnded = true;
-        const winner = this.clients.find(x => x.sessionId == winnerId);
-        const loser = this.clients.find(x => x.sessionId != winnerId);
-        winner.send("result", "you win");
-        loser.send("result", "you loose");
+      if (!this.state.isOver) {
+        this.state.isOver = true;
+        this.state.winner = this.initializePlayer(client.sessionId);
       }
-      // this.state.mySynchronizedProperty = message.a
     });
   }
 
@@ -35,7 +27,7 @@ export class Battle extends Room<BattleState> {
     }
     else {
       this.state.playerB = this.initializePlayer(client.sessionId);
-      this.startGame();
+      this.beginDuel();
     }
   }
 
@@ -48,21 +40,29 @@ export class Battle extends Room<BattleState> {
     console.log("room", this.roomId, "disposing...");
   }
 
-  private initializePlayer = (name: string): Player => {
+  private initializePlayer = (id: string): Player => {
     const p = new Player();
-    p.name = name;
+    p.id = id;
     return p;
   }
 
-  private startGame = () => {
-    this.broadcast("get_ready", "ready to go");
+  private beginDuel = () => {
+    const ttw = this.getTimeToWaitInMs();
+    console.log("TTW: ", ttw);
+    
+    this.state.isReady = true;
 
     this.clock.start();
 
     this.countDown = this.clock.setTimeout(() => {
-      this.state.isReady = true;
+      this.state.isStarted = true;
       this.countDown.clear();
-    }, 7000);
+    }, ttw);
+  }
+
+  private getTimeToWaitInMs = (): number => {
+    const multiplier = Math.floor(Math.random() * 9) + 1;
+    return multiplier * 1000;
   }
 
 }

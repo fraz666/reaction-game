@@ -9,6 +9,10 @@ import { Battle } from "./rooms/Battle";
 
 export default config({
 
+    // options: {
+    //     publicAddress: "192.168.1.78"
+    // },
+
     initializeGameServer: (gameServer) => {
         /**
          * Define your room handlers:
