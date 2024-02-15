@@ -39,7 +39,7 @@ export const App = component$(() => {
 })
 
 const connect = async (userState: any) => {
-  const client = new Client(import.meta.env.VITE_INFRASTRUCTURE_URI);
+  const client = new Client(import.meta.env.VITE_INFRASTRUCTURE_URI || 'ws://localhost:2567');
 
   userState.client = noSerialize(client);
   console.log(userState.client);
