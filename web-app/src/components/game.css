@@ -1,0 +1,12 @@
+.cube {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    margin: 1rem;
+}
+
+#cube-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

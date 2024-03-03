@@ -20,21 +20,10 @@ const transport = new WebSocketTransport({ server });
 
 const gameServer = new Server({
   transport,
-
-  // server: server,
-  // presence: new RedisPresence(),
-  // driver: new RedisDriver(),
-
-  // devMode: true,
-
-  // // driver: new MongooseDriver(),
-  // publicAddress: `localhost:${port}`,
+  // devMode: true
 });
 
 app.use(express.json());
-app.get("/hello", (req, res) => {
-  res.json({ hello: "world!" });
-});
 
 gameServer.define('duel', Battle);
 
@@ -51,7 +40,7 @@ if (process.env.NODE_ENV !== "production") {
  * It is recommended to protect this route with a password
  * Read more: https://docs.colyseus.io/tools/monitor/#restrict-access-to-the-panel-using-a-password
  */
-app.use("/colyseus", monitor());
+app.use("/monitor", monitor());
 
 gameServer.listen(port, endpoint)
   .then(() => console.log(`Listening on ws://${endpoint}:${port}`))
