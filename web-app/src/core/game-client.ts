@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus.js";
-import { GamePhase } from "./enums";
+import { GamePhase } from "../../../shared/enums";
 
 const DEFAULT_ENDPOINT = 'ws://localhost:2567';
 
@@ -14,12 +14,13 @@ const createClient = (): Client => {
 export const GAME_EVENT_TYPE = 'game_event';
 
 export class GameState {
+    public opponent: string = '';
     public phase: GamePhase = GamePhase.WAITING_MATCH;
     public isWinner: boolean = false;
 }
 
 class GameInstance extends EventTarget {
-    private userId: string;
+    private userSessionId: string;
     private room: Room;
     private gameState: GameState;
 
@@ -29,7 +30,7 @@ class GameInstance extends EventTarget {
         super();
         this.room = room;
         this.events = eventTarget;
-        this.userId = room.sessionId;
+        this.userSessionId = room.sessionId;
         this.gameState = new GameState();
 
         const event = new CustomEvent<GameState>(
@@ -47,20 +48,24 @@ class GameInstance extends EventTarget {
 
     private configureRoom() {
 
-        // TODO define state type and share it with Colyseus
+        // TODO define state change types so that STAND_OFF is not executed twice
         this.room.onStateChange((state: any) => {
-            if (state.isReady) {
+            if (state.phase == GamePhase.STAND_OFF && this.gameState.opponent == '') {
                 this.gameState.phase = GamePhase.STAND_OFF;
+                this.gameState.opponent = state.playerA.id == this.userSessionId? 
+                    state.playerB.name :
+                    state.playerA.name;
             }
     
-            if (state.isStarted) {
+            if (state.phase == GamePhase.ATTACK) {
                 this.gameState.phase = GamePhase.ATTACK;
             }
     
-            if (state.isOver) {
+            if (state.phase == GamePhase.MATCH_COMPLETED) {
                 this.gameState.phase = GamePhase.MATCH_COMPLETED;
                 const winnerId = state.winner.id;
-                this.gameState.isWinner = this.userId == winnerId;
+                console.log(state.winner)
+                this.gameState.isWinner = this.userSessionId == winnerId;
                 this.room.leave();
             }
 
@@ -89,8 +94,8 @@ export class GameService {
         this.client = createClient();
     }
 
-    public joinNewGame = async () => {
-        const room = await this.client.joinOrCreate(ROOM_NAME);
+    public joinNewGame = async (userId: string) => {
+        const room = await this.client.joinOrCreate(ROOM_NAME, { playerName: userId });
         this.gameInstance = new GameInstance(room, this.events);
     }
 

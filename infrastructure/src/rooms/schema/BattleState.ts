@@ -1,7 +1,9 @@
 import { Schema, type } from "@colyseus/schema";
+import { GamePhase } from "../../../../shared/enums";
 
 export class Player extends Schema {
   @type("string") id: string;
+  @type("string") name: string;
 }
 
 export class BattleState extends Schema {
@@ -11,8 +13,7 @@ export class BattleState extends Schema {
 
   @type(Player) winner: Player = null;
 
-  @type("boolean") isReady: boolean = false;
-  @type("boolean") isStarted: boolean = false;
   @type("boolean") isOver: boolean = false;
+  @type("number") phase: GamePhase = GamePhase.WAITING_MATCH;
 
 }

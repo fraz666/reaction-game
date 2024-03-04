@@ -8,7 +8,8 @@ import { Connect } from './components/connect';
 import { ApplicationContext, Application } from './core/context';
 import { GameService } from './core/game-client';
 import { Game } from './components/game';
-import { ApplicationStatus, GamePhase } from './core/enums';
+import { ApplicationStatus } from './core/enums';
+import { GamePhase } from "../../shared/enums";
 import { registerGameEvents } from './core/utils';
 
 
@@ -16,6 +17,7 @@ export const App = component$(() => {
 
   const ctx =  useStore<Application>({
     userId: null,
+    opponentId: null,
     status: ApplicationStatus.INIT,
     gamePhase: GamePhase.WAITING_MATCH,
     isWinner: false,

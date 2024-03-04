@@ -1,9 +1,11 @@
 import { NoSerialize, createContextId } from "@builder.io/qwik";
 import { GameService } from "./game-client";
-import { ApplicationStatus, GamePhase } from "./enums";
+import { ApplicationStatus } from "./enums";
+import { GamePhase } from "../../../shared/enums";
 
 export interface Application {
     userId: string | null;
+    opponentId: string | null;
     status: ApplicationStatus;
     gamePhase: GamePhase;
     isWinner: boolean,

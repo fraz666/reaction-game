@@ -1,6 +1,6 @@
 import { component$, useSignal, $, useContext } from "@builder.io/qwik";
 import { ApplicationContext } from "../core/context";
-import { connect as connectUtils } from "../core/utils";
+import { connect as connectUtils, generateName } from "../core/utils";
 
 import "./connect.css";
 
@@ -8,7 +8,7 @@ export const Connect = component$(() => {
 
     const ctx = useContext(ApplicationContext);
     
-    const username = useSignal<string>("player");
+    const username = useSignal<string>(generateName());
     const connect = $(() => {
         connectUtils(ctx, username.value);
     });

@@ -1,8 +1,8 @@
-import { component$, useContext, useVisibleTask$, $, useTask$ } from "@builder.io/qwik";
+import { component$, useContext, useVisibleTask$, $ } from "@builder.io/qwik";
 import anime from "animejs";
 import { ApplicationContext } from "../core/context";
-import { GamePhase } from "../core/enums";
-import { attack as attackUtils} from "../core/utils";
+import { GamePhase } from "../../../shared/enums";
+import { attack as attackUtils } from "../core/utils";
 
 import './game.css';
 
@@ -14,26 +14,33 @@ export const Game = component$(() => {
     });
 
     return (
-        <>            
+        <>
             {
                 ctx.gamePhase == GamePhase.WAITING_MATCH &&
                 <>
                     <h6>{ctx.userId}, wait for an opponent...</h6>
-                    <Animation classId="waiting" color="aquamarine" propertyName="rotate" propertyValue={360} duration={3}/>
+                    <Animation classId="waiting" color="deeppink" propertyName="rotate" propertyValue={360} duration={3} />
                 </>
+            }
+
+            {
+                ctx.gamePhase != GamePhase.WAITING_MATCH &&
+                <h4>
+                    <span id="player" class="name-tag">{ctx.userId}</span> VS <span id="opponent" class="name-tag">{ctx.opponentId}</span>
+                </h4>
             }
 
             {
                 ctx.gamePhase == GamePhase.STAND_OFF &&
                 <>
-                    <h6>{ctx.userId}, prepare to attack...</h6>
-                    <Animation classId="prepare-to-figth" color="coral" propertyName="rotateX" propertyValue={180} duration={1.5}/>
-                </>                
+                    <h6>prepare to attack...</h6>
+                    <Animation classId="prepare-to-figth" color="coral" propertyName="rotateX" propertyValue={180} duration={1.5} />
+                </>
             }
 
             {
                 ctx.gamePhase == GamePhase.ATTACK &&
-                <button onClick$={attack}>Attack!</button>
+                <button id="attack" onClick$={attack}>ATTACK!</button>
             }
 
             {

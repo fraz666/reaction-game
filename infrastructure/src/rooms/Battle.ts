@@ -1,6 +1,8 @@
 import { Room, Client } from "@colyseus/core";
-import { BattleState, Player } from "./schema/BattleState";
 import { Delayed } from "colyseus";
+import { BattleState, Player } from "./schema/BattleState";
+
+import { GamePhase } from "../../../shared/enums";
 
 export class Battle extends Room<BattleState> {
   maxClients = 2;
@@ -8,25 +10,29 @@ export class Battle extends Room<BattleState> {
   countDown: Delayed;
 
   onCreate(options: any) {
+    console.log(GamePhase.ATTACK)
     this.setState(new BattleState());
 
-    this.onMessage("attack", (client, message) => {
-      console.log("ATTACK", client.sessionId);
+    this.onMessage("attack", (client, _) => {
       if (!this.state.isOver) {
         this.state.isOver = true;
-        this.state.winner = this.initializePlayer(client.sessionId);
+        this.state.phase = GamePhase.MATCH_COMPLETED;
+
+        const winner = this.state.playerA.id == client.sessionId? this.state.playerA : this.state.playerB;
+        this.state.winner = winner;
+        console.log("winner", winner.id, winner.name)
       }
     });
   }
 
   onJoin(client: Client, options: any) {
-    console.log(client.sessionId, "joined!");
+    console.log(client.sessionId, options, "joined!");
 
     if (!this.state.playerA) {
-      this.state.playerA = this.initializePlayer(client.sessionId);
+      this.state.playerA = this.initializePlayer(client.sessionId, options.playerName);
     }
     else {
-      this.state.playerB = this.initializePlayer(client.sessionId);
+      this.state.playerB = this.initializePlayer(client.sessionId, options.playerName);
       this.beginDuel();
     }
   }
@@ -40,9 +46,10 @@ export class Battle extends Room<BattleState> {
     console.log("room", this.roomId, "disposing...");
   }
 
-  private initializePlayer = (id: string): Player => {
+  private initializePlayer = (id: string, name: string): Player => {
     const p = new Player();
     p.id = id;
+    p.name = name;
     return p;
   }
 
@@ -50,12 +57,12 @@ export class Battle extends Room<BattleState> {
     const ttw = this.getTimeToWaitInMs();
     console.log("TTW: ", ttw);
     
-    this.state.isReady = true;
+    this.state.phase = GamePhase.STAND_OFF;
 
     this.clock.start();
 
     this.countDown = this.clock.setTimeout(() => {
-      this.state.isStarted = true;
+      this.state.phase = GamePhase.ATTACK;
       this.countDown.clear();
     }, ttw);
   }

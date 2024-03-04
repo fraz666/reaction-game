@@ -1,3 +1,23 @@
+#player {
+    background-color: aqua;
+}
+
+#opponent {
+    background-color: hotpink;
+}
+
+.name-tag {
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+#attack {
+    width: 15rem;
+    height: 5rem;
+    background-color: crimson;
+    color: ghostwhite;
+}
+
 .cube {
     width: 18px;
     height: 18px;
