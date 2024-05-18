@@ -11,6 +11,13 @@
     border-radius: 8px;
 }
 
+#player-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
 #attack {
     width: 15rem;
     height: 5rem;

@@ -55,7 +55,8 @@ export class Battle extends Room<BattleState> {
 
   private beginDuel = () => {
     const ttw = this.getTimeToWaitInMs();
-    console.log("TTW: ", ttw);
+    const challenge = this.generateWordChallenge();
+    console.log("Duel: ", ttw, challenge);
     
     this.state.phase = GamePhase.STAND_OFF;
 
@@ -63,6 +64,7 @@ export class Battle extends Room<BattleState> {
 
     this.countDown = this.clock.setTimeout(() => {
       this.state.phase = GamePhase.ATTACK;
+      this.state.challenge = challenge;
       this.countDown.clear();
     }, ttw);
   }
@@ -70,6 +72,22 @@ export class Battle extends Room<BattleState> {
   private getTimeToWaitInMs = (): number => {
     const multiplier = Math.floor(Math.random() * 9) + 1;
     return multiplier * 1000;
+  }
+
+  private generateWordChallenge = (): string => {
+    const chars = [];
+
+    for (let i=0; i<3; i++) {
+      const n = this.getRandomArbitrary(97, 122);
+      const c = String.fromCharCode(n);
+      chars.push(c);
+    }
+
+    return chars.join('');
+  }
+
+  private getRandomArbitrary = (min: number, max: number): number => {
+    return Math.random() * (max - min) + min;
   }
 
 }

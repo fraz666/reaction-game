@@ -1,4 +1,4 @@
-import { component$, useContext, useVisibleTask$, $ } from "@builder.io/qwik";
+import { component$, useContext, useVisibleTask$, $, QRL, useSignal } from "@builder.io/qwik";
 import anime from "animejs";
 import { ApplicationContext } from "../core/context";
 import { GamePhase } from "../../../shared/enums";
@@ -25,9 +25,11 @@ export const Game = component$(() => {
 
             {
                 ctx.gamePhase != GamePhase.WAITING_MATCH &&
-                <h4>
-                    <span id="player" class="name-tag">{ctx.userId}</span> VS <span id="opponent" class="name-tag">{ctx.opponentId}</span>
-                </h4>
+                <div id="player-container">
+                    <h6 id="player" class="name-tag">{ctx.userId}</h6>
+                    <h4>VS</h4>
+                    <h6 id="opponent" class="name-tag">{ctx.opponentId}</h6>
+                </div>
             }
 
             {
@@ -40,7 +42,7 @@ export const Game = component$(() => {
 
             {
                 ctx.gamePhase == GamePhase.ATTACK &&
-                <button id="attack" onClick$={attack}>ATTACK!</button>
+                <Challenge challenge={ctx.gameSvc?.challenge} attackEmitter$={attack} />
             }
 
             {
@@ -85,6 +87,40 @@ export const Animation = component$((props: AnimationProps) => {
             <div id="cube-container">
                 {cubes}
             </div>
+        </>
+    );
+});
+
+export interface ChallengeProps {
+    challenge: string | undefined;
+    attackEmitter$: QRL<() => void>;
+}
+
+export const Challenge = component$((props: ChallengeProps) => {
+
+    const challengeResult = props.challenge;
+    const inputRef = useSignal<Element>();
+    const userAttempt = useSignal<string>('');
+
+
+    useVisibleTask$(() => {
+        if (inputRef.value) {
+            (inputRef.value as HTMLElement).focus()
+        }
+    });
+
+    const handleUserInput = $((_: InputEvent, element: HTMLInputElement) => {
+        userAttempt.value = element.value?.toLocaleLowerCase();
+        if (userAttempt.value == challengeResult) {
+            props.attackEmitter$();
+        }
+    });
+
+    return (
+        <>
+            <h6>type this:</h6>
+            <h1>{challengeResult}</h1>
+            <input ref={inputRef} value={userAttempt.value} onInput$={handleUserInput} />
         </>
     );
 });

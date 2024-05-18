@@ -34,11 +34,13 @@ export const App = component$(() => {
 
   return (
     <>
-      <h1>Reaction game</h1>
 
       {
         ctx?.status == ApplicationStatus.INIT &&
-        <Connect />
+        <>
+          <h1>Reaction game</h1>
+          <Connect />
+        </>        
       }
 
       {

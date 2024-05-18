@@ -15,6 +15,7 @@ export const GAME_EVENT_TYPE = 'game_event';
 
 export class GameState {
     public opponent: string = '';
+    public challenge: string = '';
     public phase: GamePhase = GamePhase.WAITING_MATCH;
     public isWinner: boolean = false;
 }
@@ -46,6 +47,10 @@ class GameInstance extends EventTarget {
         this.room.send(ATTACK_COMMAND);
     }
 
+    public get challenge(): string {
+        return this.gameState?.challenge;
+    }
+
     private configureRoom() {
 
         // TODO define state change types so that STAND_OFF is not executed twice
@@ -59,6 +64,8 @@ class GameInstance extends EventTarget {
     
             if (state.phase == GamePhase.ATTACK) {
                 this.gameState.phase = GamePhase.ATTACK;
+                this.gameState.challenge = state.challenge;
+                console.log("challenge", this.gameState.challenge);
             }
     
             if (state.phase == GamePhase.MATCH_COMPLETED) {
@@ -101,5 +108,9 @@ export class GameService {
 
     public attack = () => {
         this.gameInstance?.attack();
+    }
+
+    public get challenge(): string {
+        return this.gameInstance?.challenge ?? '';
     }
 }

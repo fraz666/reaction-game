@@ -15,5 +15,6 @@ export class BattleState extends Schema {
 
   @type("boolean") isOver: boolean = false;
   @type("number") phase: GamePhase = GamePhase.WAITING_MATCH;
+  @type("string") challenge = "";
 
 }
