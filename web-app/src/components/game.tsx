@@ -1,4 +1,4 @@
-import { component$, useContext, useVisibleTask$, $, QRL, useSignal } from "@builder.io/qwik";
+import { component$, useContext, useVisibleTask$, $, QRL, useSignal, useOnDocument } from "@builder.io/qwik";
 import anime from "animejs";
 import { ApplicationContext } from "../core/context";
 import { GamePhase } from "../../../shared/enums";
@@ -99,28 +99,49 @@ export interface ChallengeProps {
 export const Challenge = component$((props: ChallengeProps) => {
 
     const challengeResult = props.challenge;
-    const inputRef = useSignal<Element>();
-    const userAttempt = useSignal<string>('');
+    const challengeSignal = useSignal<string>(props.challenge!);
 
+    useOnDocument(
+        'keydown',
+        $((event) => {
+            const c = event.key;
+            const i = challengeResult!.length - challengeSignal.value.length;
+            if (challengeSignal.value.startsWith(c)) {
+                challengeSignal.value = challengeSignal.value.substring(1);
 
-    useVisibleTask$(() => {
-        if (inputRef.value) {
-            (inputRef.value as HTMLElement).focus()
-        }
-    });
+                const target = `#value-${i}${c}`;
+                const dir = Math.random() > .5? '' : '-'
 
-    const handleUserInput = $((_: InputEvent, element: HTMLInputElement) => {
-        userAttempt.value = element.value?.toLocaleLowerCase();
-        if (userAttempt.value == challengeResult) {
-            props.attackEmitter$();
-        }
-    });
+                const params: any = {
+                    targets: target,
+                    duration: 1 * 1000,
+                    rotate: `${dir}1.5turn`,
+                    scale: {
+                        value: 0,
+                        duration: 500,
+                        delay: 100,
+                        easing: 'easeInOutQuart'
+                    },
+                    loop: false
+                };
+
+                anime(params);
+            }
+
+            if (challengeSignal.value == '') {
+                props.attackEmitter$();
+            }
+
+        })
+    );
+
+    const characters = Array.from(challengeResult!)
+        .map((x, i) => <h1 key={i} id={'value-' + i + x} class="challenge-char">{x}</h1>);
 
     return (
         <>
             <h6>type this:</h6>
-            <h1>{challengeResult}</h1>
-            <input ref={inputRef} value={userAttempt.value} onInput$={handleUserInput} />
+            {characters}
         </>
     );
 });

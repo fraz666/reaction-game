@@ -70,7 +70,7 @@ export class Battle extends Room<BattleState> {
   }
 
   private getTimeToWaitInMs = (): number => {
-    const multiplier = Math.floor(Math.random() * 9) + 1;
+    const multiplier = this.getRandomBetween(1, 7); // Math.floor(Math.random() * 9) + 1;
     return multiplier * 1000;
   }
 
@@ -78,7 +78,7 @@ export class Battle extends Room<BattleState> {
     const chars = [];
 
     for (let i=0; i<3; i++) {
-      const n = this.getRandomArbitrary(97, 122);
+      const n = this.getRandomBetween(97, 122);
       const c = String.fromCharCode(n);
       chars.push(c);
     }
@@ -86,7 +86,7 @@ export class Battle extends Room<BattleState> {
     return chars.join('');
   }
 
-  private getRandomArbitrary = (min: number, max: number): number => {
+  private getRandomBetween = (min: number, max: number): number => {
     return Math.random() * (max - min) + min;
   }
 
