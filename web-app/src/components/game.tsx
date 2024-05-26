@@ -1,8 +1,8 @@
 import { component$, useContext, useVisibleTask$, $, QRL, useSignal, useOnDocument } from "@builder.io/qwik";
-import anime from "animejs";
+import anime, { AnimeParams } from "animejs";
 import { ApplicationContext } from "../core/context";
 import { GamePhase } from "../../../shared/enums";
-import { attack as attackUtils } from "../core/utils";
+import { attack as attackUtils, randomElement } from "../core/utils";
 
 import './game.css';
 
@@ -36,18 +36,18 @@ export const Game = component$(() => {
                 ctx.gamePhase == GamePhase.STAND_OFF &&
                 <>
                     <h6>prepare to attack...</h6>
-                    <Animation classId="prepare-to-figth" color="coral" propertyName="rotateX" propertyValue={180} duration={1.5} />
+                    <Animation classId="prepare-to-fight" color="coral" propertyName="rotateX" propertyValue={180} duration={1.5} />
                 </>
             }
 
             {
                 ctx.gamePhase == GamePhase.ATTACK &&
-                <Challenge challenge={ctx.gameSvc?.challenge} attackEmitter$={attack} />
+                <Challenge challenge={ctx.gameSvc?.challenge} attackEmitter$={attack} isMobile={ctx.isMobile} />
             }
 
             {
                 ctx.gamePhase == GamePhase.MATCH_COMPLETED &&
-                <h1>{ctx.isWinner ? '🎉' : '🤢'}</h1>
+                <RoundOver isWinner={ctx.isWinner} />
             }
         </>
     );
@@ -60,7 +60,6 @@ export interface AnimationProps {
     propertyValue: string | number;
     duration: number;
 }
-
 
 export const Animation = component$((props: AnimationProps) => {
 
@@ -91,7 +90,9 @@ export const Animation = component$((props: AnimationProps) => {
     );
 });
 
+
 export interface ChallengeProps {
+    isMobile: boolean | null;
     challenge: string | undefined;
     attackEmitter$: QRL<() => void>;
 }
@@ -100,6 +101,23 @@ export const Challenge = component$((props: ChallengeProps) => {
 
     const challengeResult = props.challenge;
     const challengeSignal = useSignal<string>(props.challenge!);
+    const isMobile = props.isMobile ?? false;
+
+    const mobileInputRef = useSignal<Element>();
+    const mobileValue = useSignal<string>('');
+    useVisibleTask$(() => {
+        const elem = mobileInputRef?.value as HTMLElement;
+
+        if (elem) {
+            elem.focus();
+        }
+    });
+    const handleMobileInput = $((_: InputEvent, element: HTMLInputElement) => {
+        mobileValue.value = element.value.toLowerCase();
+        if (mobileValue.value == challengeResult) {
+            props.attackEmitter$();
+        }
+    });
 
     useOnDocument(
         'keydown',
@@ -112,15 +130,19 @@ export const Challenge = component$((props: ChallengeProps) => {
                 const target = `#value-${i}${c}`;
                 const dir = Math.random() > .5? '' : '-'
 
-                const params: any = {
+                const params: AnimeParams = {
                     targets: target,
-                    duration: 1 * 1000,
+                    duration: 300,
                     rotate: `${dir}1.5turn`,
                     scale: {
                         value: 0,
-                        duration: 500,
-                        delay: 100,
                         easing: 'easeInOutQuart'
+                    },
+                    complete: (_) => {
+                        const el = document?.querySelector(target) as HTMLElement;
+                        if (el != null) {
+                            el.style.display = 'none';
+                        }
                     },
                     loop: false
                 };
@@ -142,6 +164,38 @@ export const Challenge = component$((props: ChallengeProps) => {
         <>
             <h6>type this:</h6>
             {characters}
+            {
+                isMobile &&
+                <input ref={mobileInputRef} value={mobileValue.value} onInput$={handleMobileInput}/>
+            }
+            
         </>
     );
 });
+
+
+export const RoundOver = component$((props: any) => {
+    const winEmojis = ['🎉', '🍾', '🍺', '🍻', '🍸', '🥂', '😎', '😍', '🤩', '🤠', '💪', '🤘', '✌', '🤙', '👌', '✨', '🎊', '👑', '💎', '🏆', '🥇'];
+    const loseEmojis = ['🤢', '😥', '😣', '😫', '😴', '😯', '😒', '😲', '😖', '😞', '😟', '😤', '😢', '😭', '😨', '🤯', '😠', '🤬', '😡', '🤕', '🤮', '💀', '👺', '☠', '💩', '🐵', '🐗'];
+
+    const emoji = props?.isWinner? randomElement(winEmojis) : randomElement(loseEmojis);
+    const phrase = props?.isWinner? 'winner' : 'looser';
+    useVisibleTask$(() => {
+        const params: AnimeParams = {
+            targets: `#result`,
+            duration: 1000,
+            rotateY: 360,
+            easing: 'linear',
+            loop: true
+        };
+
+        anime(params);
+    });
+
+    return (
+        <>
+            <h6>round over... {phrase}</h6>
+            <h1 id="result">{emoji}</h1>
+        </>
+    );
+})

@@ -10,12 +10,13 @@ import { GameService } from './core/game-client';
 import { Game } from './components/game';
 import { ApplicationStatus } from './core/enums';
 import { GamePhase } from "../../shared/enums";
-import { registerGameEvents } from './core/utils';
+import { isMobile, registerGameEvents } from './core/utils';
 
 
 export const App = component$(() => {
 
   const ctx =  useStore<Application>({
+    isMobile: null,
     userId: null,
     opponentId: null,
     status: ApplicationStatus.INIT,
@@ -28,6 +29,7 @@ export const App = component$(() => {
   useContextProvider(ApplicationContext, ctx);
 
   useTask$(() => {
+    ctx.isMobile = isMobile();
     ctx.gameSvc = noSerialize(new GameService());
     registerGameEvents(ctx);
   });

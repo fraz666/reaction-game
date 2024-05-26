@@ -18,15 +18,9 @@
     gap: 1rem;
 }
 
-#attack {
-    width: 15rem;
-    height: 5rem;
-    background-color: crimson;
-    color: ghostwhite;
-}
-
 .cube {
     width: 18px;
+    border-radius: 4px;
     height: 18px;
     display: inline-block;
     margin: 1rem;

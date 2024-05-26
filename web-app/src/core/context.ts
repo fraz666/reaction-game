@@ -4,6 +4,7 @@ import { ApplicationStatus } from "./enums";
 import { GamePhase } from "../../../shared/enums";
 
 export interface Application {
+    isMobile: boolean | null;
     userId: string | null;
     opponentId: string | null;
     status: ApplicationStatus;

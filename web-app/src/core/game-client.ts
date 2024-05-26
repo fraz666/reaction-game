@@ -65,13 +65,11 @@ class GameInstance extends EventTarget {
             if (state.phase == GamePhase.ATTACK) {
                 this.gameState.phase = GamePhase.ATTACK;
                 this.gameState.challenge = state.challenge;
-                console.log("challenge", this.gameState.challenge);
             }
     
             if (state.phase == GamePhase.MATCH_COMPLETED) {
                 this.gameState.phase = GamePhase.MATCH_COMPLETED;
                 const winnerId = state.winner.id;
-                console.log(state.winner)
                 this.gameState.isWinner = this.userSessionId == winnerId;
                 this.room.leave();
             }

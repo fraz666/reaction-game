@@ -53,9 +53,20 @@ export const attack = async (ctx: Application) => {
     }
 }
 
-const randomElement = <T>(array: T[]) => array[Math.floor(Math.random() * array.length)];
+export const randomElement = <T>(array: T[]) => array[Math.floor(Math.random() * array.length)];
 
 const handleError = (ctx: Application, e: any) => {
     console.error(e);
     ctx.error = `[${e?.name}] ${e?.message}`;
 }
+
+export const isMobile = () => {
+    let hasTouchScreen = false;
+
+    if ("maxTouchPoints" in navigator) {
+        hasTouchScreen = navigator.maxTouchPoints > 0;
+    } 
+
+    return hasTouchScreen;
+}
+
